@@ -2,6 +2,7 @@
 var canvas = document.getElementById('example');
 // Get the rendering context for 2DCG
 var ctx = canvas.getContext('2d');
+
 function main() {  
   // Retrieve <canvas> element
 
@@ -14,7 +15,10 @@ function main() {
   ctx.fillStyle = 'rgba(0, 0, 0, 1.0)'; // Set color to blue
   ctx.fillRect(0, 0, 400, 400);        // Fill a rectangle with the color
 
-  ///////////
+  /**
+   * End of DrawRectangle.js code
+   * Below is all student generated or repurposed from recordings
+  */
 
   let v1 = new Vector3([25,25,0]); // v[0] is +x, x[1] is -y
 
