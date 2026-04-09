@@ -1,0 +1,48 @@
+<!-- Lachlan Hodge's (lrhodge@ucsc.edu) Assignment 1 -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Assignment 1 for CSE 160</title>
+  </head>
+
+  <body onload="main()">
+
+    <canvas id="example" width="400" height="400">
+      Please use a browser that supports "canvas"
+    </canvas>
+    <script src="asg1.js"></script>
+    <script src="../lib/cuon-matrix-cse160.js"></script>
+    
+    <br>
+    <button onclick="clearCanvas()" >Clear Canvas</button>
+
+    <br><br>
+    <label for="mode_select">Drawing Mode:</label>
+    <div name="mode_select">
+      <button onclick="mode(sqr)" >Squares</button>
+      <button onclick="mode(tri)" >Triangles</button>
+      <button onclick="mode(cir)" >Circles</button>
+    </div>
+
+    <br>
+    <label for="color_select">Shape Color</label>
+    <div name="color_select">
+      <label for="red">Red</label>
+      <input type="range" id="red">
+      <label for="blue">Blue</label>
+      <input type="range" id="blue">
+      <label for="green">Green</label>
+      <input type="range" id="green">
+    </div>
+
+    <br>
+
+    <label for="size">Shape Size</label>
+    <input type="range" id="size">
+    <label for="num">(Circles) Segment Count</label>
+    <input type="range" id="num">
+
+  </body>
+</html>
