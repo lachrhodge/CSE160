@@ -47,8 +47,8 @@ class Triangle{
 
 class Circle{
   constructor(seg){
-    this.type='point';
-    this.pos = [0,0,0];
+    this.type='circle';
+    this.pos = [0.0,0.0,0.0];
     this.color = [1.0, 1.0, 1.0, 1.0]
     this.size = 5.0;
     this.segments = seg;
@@ -61,26 +61,42 @@ class Circle{
 
     // Pass the color of a point to u_FragColor variable
     gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-    gl.uniform1f(u_size, size);
 
     // Draw
     var angleStep = 360/this.segments;
-    for(var a1 = 0; angle < 360; angle++){
-      var a2 = a1+angleStep;
-      var vec1 = [Math.cos(a1*Math.PI/180*d)*scale, Math.sin(a1*Math.PI/180)*scale];
-      var vec2 = [Math.cos(a2*Math.PI/180*d)*scale, Math.sin(a2*Math.PI/180)*scale];
-      var pt1 = [center[0]+vec1[0], center[1]+vec1[1]];
-      var pt2 = [center[0]+vec2[0], center[1]+vec2[1]];
 
-      drawTriangle( [center[0], center[1],  pt1[0], pt1[1],  pt2[0], pt2[1]] );
+    var vertices = [];
+    vertices.push(center[0],center[1]);
+
+    for(var a1 = 0; a1 <= 360; a1+=angleStep){
+      var vec = [Math.cos(a1*Math.PI/180)*scale, Math.sin(a1*Math.PI/180)*scale];
+      vertices.push(center[0]+vec[0], center[1]+vec[1]);
     }
+
+    var vertexBuffer = gl.createBuffer();
+    if (!vertexBuffer) {
+      console.log('Failed to create the buffer object');
+      return -1;
+    }
+
+    // Bind the buffer object to target
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    // Write date into the buffer object
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.DYNAMIC_DRAW);
+    // static draw is not good, switch to dynamic draw
+
+    // Assign the buffer object to a_Position variable
+    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+
+    // Enable the assignment to a_Position variable
+    gl.enableVertexAttribArray(a_Position);
+
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, vertices.length / 2);
   }
 
 }
 
 function drawTriangle(vertices) { // basically a method of 
-  var n = 3; // The number of vertices
-
   // Create a buffer object
   var vertexBuffer = gl.createBuffer();
   if (!vertexBuffer) {
@@ -100,6 +116,16 @@ function drawTriangle(vertices) { // basically a method of
   // Enable the assignment to a_Position variable
   gl.enableVertexAttribArray(a_Position);
 
-  gl.drawArrays(gl.TRIANGLES, 0, n);
-  // return n;
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
+
+// for(var a1 = 0; a1 <= 360; a1+=angleStep){
+    //   var a2 = a1+angleStep;
+    //   var vec1 = [Math.cos(a1*Math.PI/180)*scale, Math.sin(a1*Math.PI/180)*scale];
+    //   var vec2 = [Math.cos(a2*Math.PI/180)*scale, Math.sin(a2*Math.PI/180)*scale];
+    //   var pt1 = [center[0]+vec1[0], center[1]+vec1[1]];
+    //   var pt2 = [center[0]+vec2[0], center[1]+vec2[1]];
+    //   drawTriangle( [center[0], center[1],  pt1[0], pt1[1],  pt2[0], pt2[1]] ); // super slow
+    // }
+
+// alternate code for rendering direct triangles in webGL
