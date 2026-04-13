@@ -11,39 +11,40 @@
 
     <canvas id="webgl" width="400" height="400"></canvas>
     
-    <script src="asgn1.js"></script>
-    <script src="../lib/cuon-utils.js"></script>
-    <script src="../lib/webgl-debug.js"></script>
-    <script src="../lib/webgl-utils.js"></script>
-    
     <br>
-    <button onclick="clearCanvas()" >Clear Canvas</button>
+    <button id="ctrll" type="button">Clear Canvas</button>
 
     <br><br>
     <label for="mode_select">Drawing Mode:</label>
     <div name="mode_select">
-      <button onclick="mode(sqr)" >Squares</button>
-      <button onclick="mode(tri)" >Triangles</button>
-      <button onclick="mode(cir)" >Circles</button>
+      <button id="sqr" type="button">Squares</button>
+      <button id="tri" type="button">Triangles</button>
+      <button id="cir" type="button">Circles</button>
     </div>
 
     <br>
     <label for="color_select">Shape Color</label>
     <div name="color_select">
       <label for="red">Red</label>
-      <input type="range" id="red">
+      <input type="range" id="red" min="0" max="100" class="slider" value="100">
       <label for="blue">Blue</label>
-      <input type="range" id="blue">
+      <input type="range" id="blue" min="0" max="100" class="slider" value="100">
       <label for="green">Green</label>
-      <input type="range" id="green">
+      <input type="range" id="green" min="0" max="100" class="slider" value="100">
     </div>
 
     <br>
 
     <label for="size">Shape Size</label>
-    <input type="range" id="size">
+    <input type="range" id="size" min="5" max="40" value = 0 class="slider">
     <label for="num">(Circles) Segment Count</label>
-    <input type="range" id="num">
+    <input type="range" id="numSeg" min="3" max="90" step="3" value="0" class="slider"> 
+
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="asgn1.js"></script>
+    <script src="Classes.js"></script>
 
   </body>
 </html>
