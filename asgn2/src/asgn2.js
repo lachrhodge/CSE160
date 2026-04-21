@@ -26,8 +26,12 @@ let gl;
 let u_FragColor;
 let a_Position;
 let u_ModelMatrix;
+let u_GlobalRotateMatrix;
 
-let g_rotate;
+let g_xrotate = 0; // rotate arond x
+let g_yrotate = 0; // rotate around y
+let g_jointAngle = 30;
+let rotationCap = 90;
 
 function setupWebGL(){ // 
   canvas = document.getElementById('webgl'); // Retrieve <canvas> elemment
@@ -36,6 +40,8 @@ function setupWebGL(){ //
     console.log('Failed to get the rendering context for WebGL');
     return;
   }
+
+  gl.enable(gl.DEPTH_TEST);
 }
 
 function connectVarGLSL(){ // compressed down bc I don't want to look at it
@@ -55,13 +61,13 @@ function connectVarGLSL(){ // compressed down bc I don't want to look at it
   }
   u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
   if (!u_ModelMatrix) {
-    console.log('Failed to get the storage location of u_size')
+    console.log('Failed to get the storage location of u_ModelMatrix')
     return;
   }
 
-  u_GlobalRotateMatrix = gl.getAttribLocation(gl.program, 'u_GlobalRotateMatrix');
-  if (!u_ModelMatrix) {
-    console.log('Failed to get the storage location of u_size')
+  u_GlobalRotateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalRotateMatrix');
+  if (!u_GlobalRotateMatrix) {
+    console.log('Failed to get the storage location of u_GlobalRotateMatrix')
     return;
   }
 }
@@ -72,25 +78,12 @@ function main() {
 
   //initialize canvas.
   gl.clearColor(0.0, 0.0, 0.0, 1);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  // handling changing sliders and the like.
-  //actionsHTMLUI();
+  camera();
 
   renderShapes();
-}
-
-function renderShapes(){
-  gl.clear(gl.COLOR_BUFFER_BIT);
-
-  var rotMatrix = new Matrix4().rotate(g_rotate,0,1,0);
-  gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, rotMatrix.elements);
-
-  drawTriangle3D( [-1.0,0.0,0.0, -0.5,-1.0,0.0, 0.0,0.0,0.0] );
-
-  var cube = new Cube();
-  cube.color = [1.0,0.0,0.0,1.0];
-  cube.render();
+  actionsHTMLUI();
 }
 
 function convertCoords(ev){
@@ -105,7 +98,68 @@ function convertCoords(ev){
 }
 
 function actionsHTMLUI(){
-  document.getElementById("rotSlider").addEventListener("input", function() { g_rotate = Number(this.value); renderShapes(); });
-
+  //document.getElementById("rotSlider").addEventListener("mousemove", function() { g_yrotate = Number(this.value); renderShapes(); });
+  document.getElementById("joint").addEventListener("mousemove", function() { g_jointAngle = Number(this.value); renderShapes(); });
+  document.getElementById("CamReset").onclick = () => {g_yrotate = 0; g_xrotate = 0; renderShapes();};
+  document.getElementById("CamLeft").onclick = () => {g_yrotate = -90; g_xrotate = 0; renderShapes();};
+  document.getElementById("CamRight").onclick = () => {g_yrotate = 90; g_xrotate = 0; renderShapes();};
 }
 
+function camera(){
+  let isDragging = false;
+  let lastX, lastY;
+
+  canvas.addEventListener('mousedown', (ev) => {
+    isDragging = true;
+    lastX = ev.clientX;
+    lastY = ev.clientY;
+  }); // learned what `(ev) => {...}` is, basically a function(ev) {...}; 
+
+  canvas.addEventListener('mousemove', (ev) => {
+    if (!isDragging) return;
+
+    const dx = ev.clientX - lastX;  // delta since last frame
+    const dy = ev.clientY - lastY;
+
+    // Apply dx/dy to your camera or object here
+    g_yrotate   -= dx * 0.5;
+    g_xrotate   += dy * 0.5;
+
+    lastX = ev.clientX;  // update for next frame
+    lastY = ev.clientY;
+
+    g_xrotate = Math.max(-70, Math.min(70, g_xrotate));
+
+    renderShapes();
+  });
+
+  window.addEventListener('mouseup', () => {isDragging = false;});
+}
+
+function renderShapes(){
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  var rotMatrix = new Matrix4().rotate(g_yrotate,0,1,0);
+  rotMatrix.rotate(g_xrotate,1,0,0);
+  gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, rotMatrix.elements);
+
+  var body = new Cube();
+  body.color = [0.265,0.265,0.647,1.0];
+  body.matrix.rotate(5,1,0,0); // angle and which axes rotate
+  body.matrix.scale(.25,.2,.5);
+  body.matrix.translate(-.5,-.5,0);
+  body.render();
+
+  var neck = new Cube();
+  neck.color = [0.265,0.265,0.647,1.0];
+  neck.matrix.rotate(-8,1,0,0);
+  neck.matrix.scale(.125,.325,.125);
+  neck.matrix.translate(-.5,0,0);
+  neck.render();
+
+  var beak = new Wedge();
+  beak.color = [0,1,1,1];
+  beak.matrix.rotate(30,1,0,0);
+  beak.matrix.scale(.125,.125,.125);
+  beak.render();
+}

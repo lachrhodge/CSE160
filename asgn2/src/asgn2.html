@@ -11,21 +11,31 @@
 
     <canvas id="webgl" width="400" height="400"></canvas>
 
+    <br>
+    <label for="CamReset">Control the camera by drag clicking.</label>
+    <br>
+    <button id="CamReset" type="button">Reset Camera</button>
+    <button id="CamLeft" type="button">Left View</button>
+    <button id="CamRight" type="button">Right View</button>
+
     <br><br>
     <label for="anim_select">Animations:</label>
-    <div name="mode_select">
+    <div name="anim_select">
       <button id="idle" type="button">Idle</button>
       <button id="walk" type="button">Walk</button>
       <button id="ballin" type="button">Ballin'</button>
     </div>
 
-    <label for="Camera">Camera Rotation: </label>
-    <input id="rotSlider" name="Camera" type="range" min="0" max="360" class="slider"></range>
+    <!-- <label for="Camera">Camera Rotation: </label> -->
+    <!-- <input id="rotSlider" name="Camera" type="range" min="0" max="360" class="slider" value="0"></range> -->
+    <br>
+    <label for="JA">Joint Angle: </label>
+    <input id="joint" name="JA" type="range" min="30" max="90" class="slider" value="30"></range>
 
 
 
     <script src="asgn2.js"></script>
-    <script src="Cube.js"></script>
+    <script src="Volumes.js"></script>
     <script src="../lib/cuon-utils.js"></script>
     <script src="../lib/webgl-debug.js"></script>
     <script src="../lib/webgl-utils.js"></script>
