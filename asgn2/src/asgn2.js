@@ -32,6 +32,7 @@ let g_xrotate = 0; // rotate arond x
 let g_yrotate = 0; // rotate around y
 let g_jointAngle = 30;
 let rotationCap = 90;
+let g_locked = true;
 
 function setupWebGL(){ // 
   canvas = document.getElementById('webgl'); // Retrieve <canvas> elemment
@@ -86,23 +87,24 @@ function main() {
   actionsHTMLUI();
 }
 
-function convertCoords(ev){
-  var x = ev.clientX; // x coordinate of a mouse pointer
-  var y = ev.clientY; // y coordinate of a mouse pointer
-  var rect = ev.target.getBoundingClientRect();
+// function convertCoords(ev){
+//   var x = ev.clientX; // x coordinate of a mouse pointer
+//   var y = ev.clientY; // y coordinate of a mouse pointer
+//   var rect = ev.target.getBoundingClientRect();
 
-  x = ((x - rect.left) - canvas.width/2)/(canvas.width/2);
-  y = (canvas.height/2 - (y - rect.top))/(canvas.height/2);
+//   x = ((x - rect.left) - canvas.width/2)/(canvas.width/2);
+//   y = (canvas.height/2 - (y - rect.top))/(canvas.height/2);
 
-  return [x,y];
-}
+//   return [x,y];
+// }
 
 function actionsHTMLUI(){
   //document.getElementById("rotSlider").addEventListener("mousemove", function() { g_yrotate = Number(this.value); renderShapes(); });
-  document.getElementById("joint").addEventListener("mousemove", function() { g_jointAngle = Number(this.value); renderShapes(); });
+  //document.getElementById("joint").addEventListener("mousemove", function() { g_jointAngle = Number(this.value); renderShapes(); });
   document.getElementById("CamReset").onclick = () => {g_yrotate = 0; g_xrotate = 0; renderShapes();};
   document.getElementById("CamLeft").onclick = () => {g_yrotate = -90; g_xrotate = 0; renderShapes();};
   document.getElementById("CamRight").onclick = () => {g_yrotate = 90; g_xrotate = 0; renderShapes();};
+  const lockButton = document.getElementById("lockY").onclick = () => {g_locked = !g_locked;};
 }
 
 function camera(){
@@ -122,8 +124,10 @@ function camera(){
     const dy = ev.clientY - lastY;
 
     // Apply dx/dy to your camera or object here
+    if(!g_locked){
+      g_xrotate   -= dy * 0.5;
+    }
     g_yrotate   -= dx * 0.5;
-    g_xrotate   += dy * 0.5;
 
     lastX = ev.clientX;  // update for next frame
     lastY = ev.clientY;
@@ -133,7 +137,7 @@ function camera(){
     renderShapes();
   });
 
-  window.addEventListener('mouseup', () => {isDragging = false;});
+  window.addEventListener('mouseup', () => {isDragging = false;}); // window bc if mouse leaves canvas, then unclick, it will not trigger.
 }
 
 function renderShapes(){
@@ -143,12 +147,30 @@ function renderShapes(){
   rotMatrix.rotate(g_xrotate,1,0,0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, rotMatrix.elements);
 
+  var floor = new Cube();
+  floor.color = [.4,.3,.2,1];
+  floor.matrix.scale(1.42,1,1.42);
+  floor.matrix.translate(-.5,-1.5,-.5);
+  floor.render()
+
   var body = new Cube();
   body.color = [0.265,0.265,0.647,1.0];
-  body.matrix.rotate(5,1,0,0); // angle and which axes rotate
+  body.matrix.rotate(30,1,0,0); // angle and which axes rotate
   body.matrix.scale(.25,.2,.5);
   body.matrix.translate(-.5,-.5,0);
   body.render();
+
+  var legStump1 = new Cube();
+  legStump1.color = [0.265,0.265,0.647,1.0];
+  legStump1.matrix.scale(.09,.15,.09);
+  legStump1.matrix.translate(.5,-2.25,1.7);
+  legStump1.render();
+  var legStump2 = new Cube();
+  legStump2.color = [0.265,0.265,0.647,1.0];
+  legStump2.matrix.scale(.09,.15,.09);
+  legStump2.matrix.translate(-1.5,-2.25,1.7);
+  legStump2.render();
+
 
   var neck = new Cube();
   neck.color = [0.265,0.265,0.647,1.0];
@@ -158,8 +180,12 @@ function renderShapes(){
   neck.render();
 
   var beak = new Wedge();
-  beak.color = [0,1,1,1];
-  beak.matrix.rotate(30,1,0,0);
-  beak.matrix.scale(.125,.125,.125);
+  beak.color = [.738,.647,.51,1];
+  beak.matrix.rotate(0,1,1,1);
+  beak.matrix.scale(.125,.14,-.225);
+  beak.matrix.translate(3,.25,.25);
   beak.render();
+
+
+
 }
