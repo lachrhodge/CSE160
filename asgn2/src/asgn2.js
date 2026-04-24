@@ -87,24 +87,13 @@ function main() {
   actionsHTMLUI();
 }
 
-// function convertCoords(ev){
-//   var x = ev.clientX; // x coordinate of a mouse pointer
-//   var y = ev.clientY; // y coordinate of a mouse pointer
-//   var rect = ev.target.getBoundingClientRect();
-
-//   x = ((x - rect.left) - canvas.width/2)/(canvas.width/2);
-//   y = (canvas.height/2 - (y - rect.top))/(canvas.height/2);
-
-//   return [x,y];
-// }
-
 function actionsHTMLUI(){
   //document.getElementById("rotSlider").addEventListener("mousemove", function() { g_yrotate = Number(this.value); renderShapes(); });
   //document.getElementById("joint").addEventListener("mousemove", function() { g_jointAngle = Number(this.value); renderShapes(); });
   document.getElementById("CamReset").onclick = () => {g_yrotate = 0; g_xrotate = 0; renderShapes();};
   document.getElementById("CamLeft").onclick = () => {g_yrotate = -90; g_xrotate = 0; renderShapes();};
   document.getElementById("CamRight").onclick = () => {g_yrotate = 90; g_xrotate = 0; renderShapes();};
-  const lockButton = document.getElementById("lockY").onclick = () => {g_locked = !g_locked;};
+  document.getElementById("lockY").onclick = () => {g_locked = !g_locked;};
 }
 
 function camera(){
@@ -155,9 +144,10 @@ function renderShapes(){
 
   var body = new Cube();
   body.color = [0.265,0.265,0.647,1.0];
-  body.matrix.rotate(30,1,0,0); // angle and which axes rotate
+  body.matrix.translate(-.125,-.1,-.07);
+  var bodyMatrix = body.matrix;
+  body.matrix.rotate(30,1,0,0);
   body.matrix.scale(.25,.2,.5);
-  body.matrix.translate(-.5,-.5,0);
   body.render();
 
   var legStump1 = new Cube();
@@ -170,22 +160,29 @@ function renderShapes(){
   legStump2.matrix.scale(.09,.15,.09);
   legStump2.matrix.translate(-1.5,-2.25,1.7);
   legStump2.render();
+  
+  var neckBase = new Cube();
+  neckBase.color = [0.205,0.205,0.607,1.0];
+  neckBase.matrix = new Matrix4(bodyMatrix);
+  //neckBase.matrix.rotate(180,0,1,0);
+  neckBase.matrix.translate(.25,.01,0);
+  neckBase.matrix.rotate(-15, 1,0,0);
+  neckBase.matrix.scale(.5,1.45,.25);
+  neckBase.render();
+  var baseMatrix = neckBase.matrix;
+
+  var neckShaft = new Cube();
+  neckShaft.color = [0.265,0.265,0.647,1.0];
+  neckShaft.matrix = new Matrix4(bodyMatrix);
 
 
-  var neck = new Cube();
-  neck.color = [0.265,0.265,0.647,1.0];
-  neck.matrix.rotate(-8,1,0,0);
-  neck.matrix.scale(.125,.325,.125);
-  neck.matrix.translate(-.5,0,0);
-  neck.render();
-
-  var beak = new Wedge();
-  beak.color = [.738,.647,.51,1];
-  beak.matrix.rotate(0,1,1,1);
-  beak.matrix.scale(.125,.14,-.225);
-  beak.matrix.translate(3,.25,.25);
-  beak.render();
-
+  var tailNib0 = new Wedge();
+  tailNib0.color = [0.265,0.647,0.265,1.0];
+  tailNib0.matrix = new Matrix4(bodyMatrix);
+  tailNib0.matrix.translate(.375, 1,1.5);
+  tailNib0.matrix.scale(.25,.25,-1);
+  var nibMatrix = tailNib0.matrix;
+  tailNib0.render();
 
 
 }
