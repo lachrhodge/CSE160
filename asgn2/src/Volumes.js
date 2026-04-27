@@ -93,10 +93,4 @@ function drawTriangle3D(vertices) { // basically a method of
   gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 
-// Slider control of all joints in the animal
-
-// Animation on most of the animal, and it moves in a natural way
-
-// Button(s) to turn animation on and off
-
-// Poke with shift-click for a different animation
+// Slider control of all joints in the animal (-1 pt) only thing I can think I didn't do

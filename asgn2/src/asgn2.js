@@ -117,7 +117,7 @@ var g_seconds = performance.now() / 1000.0 - g_startTime;
 
 function tick(){
   g_seconds = performance.now() / 1000.0 - g_startTime;
-  console.log(g_seconds);
+  //console.log(g_seconds);
 
   renderShapes();
 
@@ -126,7 +126,7 @@ function tick(){
 }
 
 function actionsHTMLUI(){
-  //document.getElementById("rotSlider").addEventListener("mousemove", function() { g_yrotate = Number(this.value); renderShapes(); });
+  document.getElementById("rotSlider").addEventListener("mousemove", function() { g_yrotate = Number(this.value); renderShapes(); });
   //document.getElementById("joint").addEventListener("mousemove", function() { g_jointAngle = Number(this.value); renderShapes(); });
   document.getElementById("CamReset").onclick = () => {g_yrotate = 180; g_vrotate = 20; renderShapes();};
   document.getElementById("CamLeft").onclick = () => {g_yrotate = -90; g_vrotate = 0; renderShapes();};
@@ -140,6 +140,13 @@ function actionsHTMLUI(){
   document.getElementById("Base").addEventListener("mousemove", function() { g_neckBaF = -1 * Number(this.value); renderShapes(); });
   document.getElementById("sts").addEventListener("mousemove", function() { g_neckStS = Number(this.value); renderShapes(); });
   document.getElementById("headswiv").addEventListener("mousemove", function() { g_head = Number(this.value); renderShapes(); });
+
+  canvas.addEventListener('mousedown', (ev) => {
+    if (ev.shiftKey) {
+      g_animationMode = 'head';
+      animStart = performance.now();
+    }
+  });
 }
 
 function camera(){
@@ -165,6 +172,8 @@ function camera(){
 
     g_yrotate   -= dx * 0.5;
     g_vrotate = Math.max(-70, Math.min(70, g_vrotate));
+    document.getElementById("rotSlider").value = g_yrotate % 360;
+
 
     lastX = ev.clientX;  // update for next frame
     lastY = ev.clientY;
@@ -176,19 +185,43 @@ function camera(){
   // window bc if mouse leaves canvas, then unclick, it will not trigger.
 }
 
+var animStart;
+var animNow;
+var animFlag = false;
+
 function updateAnimAngles(){
   if(g_animationMode === 'tail'){
+    g_tailAngle = -1 * Math.abs(70 * Math.sin(g_seconds))
 
-
-
+    g_neckBaF = 290 - (35 * Math.sin(g_seconds));
+    g_neckStS = 50 * Math.cos(g_seconds * 4.5);
 
   }
   else if(g_animationMode === 'head'){
+    animNow = performance.now();
+    if(animNow - animStart > 5000){
+      //console.log("Howdy");
+      animFlag = !animFlag;
+    }
 
+    if(animFlag){
+      g_neckStS = 25 * Math.cos(g_seconds * 8);
+      g_tailAngle = -35 * Math.abs(Math.cos(g_seconds*7));
+    }
 
-
-
-
+    g_head = 70 * Math.cos(g_seconds * 12);
+    //g_tailAngle = -70 * ((g_seconds * 2 % 2) / 2);
+    animNow += 500;
+    if(animNow - animStart > 25000){
+      g_animationMode = 'tail';
+      animStart = animNow;
+    }
+  }
+  else{
+    g_tailAngle = -1 * Number(document.getElementById("tail").value);
+    g_neckBaF = -1 * Number(document.getElementById("Base").value);
+    g_neckStS = Number(document.getElementById("sts").value);
+    g_head = Number(document.getElementById("headswiv").value);
   }
 }
 
@@ -215,11 +248,11 @@ function renderShapes(){
 
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, rotMatrix.elements);
 
-  // var floor = new Cube();
-  // floor.color = [.4,.3,.2,1];
-  // floor.matrix.scale(2.5,.25,2.5);
-  // floor.matrix.translate(-.5,-3,-.5);
-  // floor.render()
+  var floor = new Cube();
+  floor.color = [.4,.3,.2,1];
+  floor.matrix.scale(2.5,.25,2.5);
+  floor.matrix.translate(-.5,-3.72,-.5);
+  floor.render()
 
   var body = new Cube();
   body.color = [0.265,0.265,0.647,1.0];
