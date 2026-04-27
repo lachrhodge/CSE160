@@ -37,6 +37,8 @@ let rotationCap = 90;
 let g_locked = true;
 let g_camDist = 1.5;
 
+let g_animationState = false;
+
 // joints
 let g_tailAngle = 0;
 
@@ -100,10 +102,23 @@ function main() {
   gl.clearColor(0.0, 0.0, 0.0, 1);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+  actionsHTMLUI();
   camera();
 
   renderShapes();
-  actionsHTMLUI();
+  //requestAnimationFrame(tick);
+}
+
+var g_startTime = performance.now() / 1000.0;
+var g_seconds = performance.now() / 1000.0 - g_startTime;
+
+function tick(){
+  g_seconds = performance.now() / 1000.0 - g_startTime;
+  console.log(g_seconds);
+
+  renderShapes();
+
+  requestAnimationFrame(tick);
 }
 
 function actionsHTMLUI(){
@@ -151,6 +166,8 @@ function camera(){
 }
 
 function renderShapes(){
+  var startTime = performance.now();
+
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   // convert to radians for Math.sin()/cos();
@@ -332,7 +349,7 @@ function renderShapes(){
   tailNibr1.matrix.rotate(g_tailAngle,1,0,0);
   tailNibr1.matrix.translate(0,0,-0.275);
 
-  tailNibr1.matrix.rotate(-8,0,1,0);
+  tailNibr1.matrix.rotate(-7,0,1,0);
   var nibr1Mat = new Matrix4(tailNibr1.matrix);
   tailNibr1.matrix.translate(-.06,.1,.75);
   tailNibr1.matrix.scale(.1,.025,-.4);
@@ -367,7 +384,7 @@ function renderShapes(){
   tailNibr2.matrix.rotate(g_tailAngle,1,0,0);
   tailNibr2.matrix.translate(0,0,-0.275);
 
-  tailNibr2.matrix.rotate(-16,0,1,0);
+  tailNibr2.matrix.rotate(-15,0,1,0);
   var nibr2Mat = new Matrix4(tailNibr2.matrix);
   tailNibr2.matrix.translate(-.06,.1,.75);
   tailNibr2.matrix.scale(.1,.025,-.4);
@@ -392,4 +409,16 @@ function renderShapes(){
   tailEndr2.matrix.scale(.1,.025,.2);
   tailEndr2.render();
 
+
+  var duration = performance.now() - startTime;
+  sendTextToHTML(" ms: " + Math.floor(duration)+" fps: "+ Math.floor(10000/duration), "metrics");
+}
+
+function sendTextToHTML(text, htmlID){
+  var htmlEl = document.getElementById(htmlID);
+  if(!htmlID){
+    console.log("Failed to get "+ htmlID+" from HTML")
+    return;
+  }
+  htmlEl.innerHTML = text;
 }
