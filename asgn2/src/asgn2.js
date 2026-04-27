@@ -37,10 +37,13 @@ let rotationCap = 90;
 let g_locked = true;
 let g_camDist = 1.5;
 
-let g_animationState = false;
+let g_animationMode = 'off';
 
 // joints
 let g_tailAngle = 0;
+let g_neckBaF  =-40;
+let g_neckStS  =  0;
+let g_head     =  0;
 
 function setupWebGL(){ // 
   canvas = document.getElementById('webgl'); // Retrieve <canvas> elemment
@@ -106,7 +109,7 @@ function main() {
   camera();
 
   renderShapes();
-  //requestAnimationFrame(tick);
+  requestAnimationFrame(tick);
 }
 
 var g_startTime = performance.now() / 1000.0;
@@ -118,6 +121,7 @@ function tick(){
 
   renderShapes();
 
+  updateAnimAngles();
   requestAnimationFrame(tick);
 }
 
@@ -129,6 +133,13 @@ function actionsHTMLUI(){
   document.getElementById("CamRight").onclick = () => {g_yrotate = 90; g_vrotate = 0; renderShapes();};
   document.getElementById("lockY").onclick = () => {g_locked = !g_locked;};
   document.getElementById("tail").addEventListener("mousemove", function() { g_tailAngle = -1 * Number(this.value); renderShapes(); });
+
+  document.getElementById("On").onclick = () => {g_animationMode = 'tail';};
+  document.getElementById("Off").onclick = () => {g_animationMode = 'off';};
+
+  document.getElementById("Base").addEventListener("mousemove", function() { g_neckBaF = -1 * Number(this.value); renderShapes(); });
+  document.getElementById("sts").addEventListener("mousemove", function() { g_neckStS = Number(this.value); renderShapes(); });
+  document.getElementById("headswiv").addEventListener("mousemove", function() { g_head = Number(this.value); renderShapes(); });
 }
 
 function camera(){
@@ -165,6 +176,24 @@ function camera(){
   // window bc if mouse leaves canvas, then unclick, it will not trigger.
 }
 
+function updateAnimAngles(){
+  if(g_animationMode === 'tail'){
+
+
+
+
+  }
+  else if(g_animationMode === 'head'){
+
+
+
+
+
+  }
+}
+
+
+
 function renderShapes(){
   var startTime = performance.now();
 
@@ -186,11 +215,11 @@ function renderShapes(){
 
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, rotMatrix.elements);
 
-  var floor = new Cube();
-  floor.color = [.4,.3,.2,1];
-  floor.matrix.scale(2.5,.25,2.5);
-  floor.matrix.translate(-.5,-3,-.5);
-  floor.render()
+  // var floor = new Cube();
+  // floor.color = [.4,.3,.2,1];
+  // floor.matrix.scale(2.5,.25,2.5);
+  // floor.matrix.translate(-.5,-3,-.5);
+  // floor.render()
 
   var body = new Cube();
   body.color = [0.265,0.265,0.647,1.0];
@@ -205,16 +234,70 @@ function renderShapes(){
   legStump1.matrix.scale(.09,.15,.09);
   legStump1.matrix.translate(.5,-2.25,1.7);
   legStump1.render();
+
+  var legSeg1 = new Cube();
+  legSeg1.color = [193/255, 153/255, 97/255,1];
+  legSeg1.matrix = new Matrix4(legStump1.matrix);
+  legSeg1.matrix.translate(.25,-1,.25);
+  legSeg1.matrix.scale(.5,1,.5);
+  legSeg1.render();
+
+  var legSeg1l = new Cube();
+  legSeg1l.color = [193/255, 153/255, 97/255,1];
+  legSeg1l.matrix = new Matrix4(legSeg1.matrix);
+  
+  legSeg1l.matrix.translate(0,-.5,0);
+  legSeg1l.matrix.rotate(45,1,0,0);
+  legSeg1l.matrix.translate(0,.5,0);
+
+  legSeg1l.matrix.translate(0.125,-1.5,-0.25);
+  legSeg1l.matrix.scale(.75,2,.35);
+  legSeg1l.render();
+
+  var foot1 = new Wedge();
+  foot1.color = [193/255, 153/255, 97/255,1];
+  foot1.matrix.scale(.05,.05, -.1);
+  foot1.matrix.translate(1.35,-13.5,-1.5);
+  foot1.render();
+
+  var foot2 = new Wedge();
+  foot2.color = [193/255, 153/255, 97/255,1];
+  foot2.matrix.scale(.05,.05, -.1);
+  foot2.matrix.translate(-2.25,-13.5,-1.5);
+  foot2.render();
+
   var legStump2 = new Cube();
   legStump2.color = [0.265,0.265,0.647,1.0];
   legStump2.matrix.scale(.09,.15,.09);
   legStump2.matrix.translate(-1.5,-2.25,1.7);
   legStump2.render();
+
+  var legSeg2 = new Cube();
+  legSeg2.color = [193/255, 153/255, 97/255,1];
+  legSeg2.matrix = new Matrix4(legStump2.matrix);
+  legSeg2.matrix.translate(.25,-1,.25);
+  legSeg2.matrix.scale(.5,1,.5);
+  legSeg2.render();
+
+  var legSeg2l = new Cube();
+  legSeg2l.color = [193/255, 153/255, 97/255,1];
+  legSeg2l.matrix = new Matrix4(legSeg2.matrix);
   
+  legSeg2l.matrix.translate(0,-.5,0);
+  legSeg2l.matrix.rotate(45,1,0,0);
+  legSeg2l.matrix.translate(0,.5,0);
+
+  legSeg2l.matrix.translate(0.125,-1.5,-0.25);
+  legSeg2l.matrix.scale(.75,2,.35);
+  legSeg2l.render();
+
+
+
+  // head and neck
   var neckBase = new Cube();
   neckBase.color = [0.205,0.205,0.607,1.0];
   neckBase.matrix = new Matrix4(bodyMatrix);
-  neckBase.matrix.rotate(-40,1,0,0);
+  neckBase.matrix.rotate(g_neckBaF,1,0,0);
   var baseMatrix = new Matrix4(neckBase.matrix);
   neckBase.matrix.scale(.10,.25,.125);
   neckBase.matrix.translate(-.5,-.1,-.4);
@@ -224,17 +307,46 @@ function renderShapes(){
   neckShaft.color = [0.165,0.165,0.547,1.0];
   neckShaft.matrix = baseMatrix;
   neckShaft.matrix.rotate(8,1,0,0);
+  neckShaft.matrix.translate(-.04,.19,-.07);
+
+  neckShaft.matrix.translate(0.04,0,0);
+  neckShaft.matrix.rotate(g_neckStS,0,0,1);
+  neckShaft.matrix.translate(-0.04,0,0);
+
   var shaftMat = new Matrix4(neckShaft.matrix);
-  neckShaft.matrix.scale(.08,.23,.09);
-  neckShaft.matrix.translate(-.5,.7,-0.8);
+  neckShaft.matrix.scale(.08,.17,.09);
   neckShaft.render();
 
   var head = new Cube();
-  neckShaft.color = [0.265,0.265,0.647,1.0];
-  neckShaft.matrix = shaftMat;
-  head.matrix.scale(.2,.2,.2);
-  //head.matrix.translate(.2,.2,.2);
+  head.color = [0.265,0.265,0.647,1.0];
+  head.matrix = shaftMat;
+  head.matrix.translate(0,0,0.1);
+  head.matrix.rotate(g_head,0,1,0);
+  head.matrix.translate(0,0,-.1);
+  head.matrix.scale(.05,.08,.12);
+  head.matrix.translate(0.25,2.1,-0.2);
   head.render();
+
+  var eyes = new Cube();
+  eyes.color = [.1,.1,.1,1];
+  eyes.matrix = new Matrix4(shaftMat);
+  eyes.matrix.scale(1.5,.25,.15);
+  eyes.matrix.translate(-.15,2,2.5);
+  eyes.render();
+
+  var beak = new Wedge();
+  beak.color = [193/255, 153/255, 97/255,1];
+  beak.matrix = new Matrix4(shaftMat);
+  beak.matrix.scale(1,.65,-.55);
+  beak.render();
+
+  var headPiece = new Cube();
+  headPiece.color = [0.265,0.647,0.265,1.0];
+  headPiece.matrix = new Matrix4(shaftMat);
+  headPiece.matrix.translate(.25,.8,.8);
+  headPiece.matrix.scale(.5,1,.65);
+  headPiece.render();
+
 
 
   // tail feathers
@@ -349,7 +461,7 @@ function renderShapes(){
   tailNibr1.matrix.rotate(g_tailAngle,1,0,0);
   tailNibr1.matrix.translate(0,0,-0.275);
 
-  tailNibr1.matrix.rotate(-7,0,1,0);
+  tailNibr1.matrix.rotate(-8,0,1,0);
   var nibr1Mat = new Matrix4(tailNibr1.matrix);
   tailNibr1.matrix.translate(-.06,.1,.75);
   tailNibr1.matrix.scale(.1,.025,-.4);
@@ -384,7 +496,7 @@ function renderShapes(){
   tailNibr2.matrix.rotate(g_tailAngle,1,0,0);
   tailNibr2.matrix.translate(0,0,-0.275);
 
-  tailNibr2.matrix.rotate(-15,0,1,0);
+  tailNibr2.matrix.rotate(-16,0,1,0);
   var nibr2Mat = new Matrix4(tailNibr2.matrix);
   tailNibr2.matrix.translate(-.06,.1,.75);
   tailNibr2.matrix.scale(.1,.025,-.4);
@@ -411,7 +523,7 @@ function renderShapes(){
 
 
   var duration = performance.now() - startTime;
-  sendTextToHTML(" ms: " + Math.floor(duration)+" fps: "+ Math.floor(10000/duration), "metrics");
+  sendTextToHTML(" ms: " + Math.floor(duration)+" fps: "+ Math.floor(1000/duration), "metrics");
 }
 
 function sendTextToHTML(text, htmlID){

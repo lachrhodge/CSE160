@@ -24,9 +24,8 @@
     <br><br>
     <label for="anim_select">Animations:</label>
     <div name="anim_select">
-      <button id="idle" type="button">Idle</button>
-      <button id="walk" type="button">Walk</button>
-      <button id="ballin" type="button">Ballin'</button>
+      <button id="On" type="button">On</button>
+      <button id="Off" type="button">Off</button>
     </div>
 
     <!-- <label for="Camera">Camera Rotation: </label> -->
@@ -34,7 +33,13 @@
     <br>
     <label for="tail">Tail Angle: </label>
     <input id="tail" name="angBase" type="range" min="0" max="75" class="slider" value="0"></range>
-
+    <br>
+    <label for="Base">Neck Back and Forth: </label>
+    <input id="Base" name="Base" type="range" min="0" max="75" class="slider" value="40"></range>
+    <br><label for="tail">Neck Side to Side: </label>
+    <input id="sts" name="angBase" type="range" min="-30" max="30" class="slider" value="0"></range>
+    <br><label for="tail">Head Swivel: </label>
+    <input id="headswiv" name="angBase" type="range" min="-30" max="30" class="slider" value="0"></range>
 
 
     <script src="asgn2.js"></script>
