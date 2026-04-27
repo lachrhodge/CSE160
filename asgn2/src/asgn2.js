@@ -252,7 +252,7 @@ function renderShapes(){
   floor.color = [.4,.3,.2,1];
   floor.matrix.scale(2.5,.25,2.5);
   floor.matrix.translate(-.5,-3.72,-.5);
-  floor.render()
+  floor.render();
 
   var body = new Cube();
   body.color = [0.265,0.265,0.647,1.0];
