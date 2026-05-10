@@ -1,4 +1,4 @@
-// Lachlan Hodge's (lrhodge) asgn2.js
+
 
 // Vertex shader program
 var VSHADER_SOURCE = `
@@ -22,19 +22,26 @@ var FSHADER_SOURCE = `
   uniform vec4 u_FragColor;
   uniform sampler2D u_sampler0;
   uniform sampler2D u_sampler1;
+  uniform sampler2D u_sampler2;
+  uniform sampler2D u_sampler4;
   uniform int u_whichTex;
   varying vec2 v_UV;
 
   void main() {
 
-    if(u_whichTex == -2){
+    if(u_whichTex == 4){
+      gl_FragColor = texture2D(u_sampler4, v_UV);
+    } else if(u_whichTex == -2){
       gl_FragColor = u_FragColor;
     } else if(u_whichTex == -1){
       gl_FragColor = vec4(v_UV, 1.0, 1.0);
     } else if(u_whichTex == 0){
       gl_FragColor = texture2D(u_sampler0, v_UV);
     } else if(u_whichTex == 1){
-      gl_FragColor = texture2D(u_sampler1, v_UV);
+      vec4 texColor = texture2D(u_sampler1, v_UV);
+      gl_FragColor = texColor * u_FragColor;
+    } else if(u_whichTex == 2){
+      gl_FragColor = texture2D(u_sampler2, v_UV);
     } else {
       gl_FragColor = vec4(1.0,.2,.2,1);  
     }
@@ -53,6 +60,9 @@ let u_GlobalRotateMatrix;
 let u_ProjectionMatrix;
 let u_whichTex;
 let u_sampler0;
+let u_sampler1;
+let u_sampler2;
+let u_sampler4;
 
 function setupWebGL(){ // 
   canvas = document.getElementById('webgl'); // Retrieve <canvas> elemment
@@ -71,52 +81,20 @@ function connectVarGLSL(){ // compressed down bc I don't want to look at it
     return;
   }
   a_Position = gl.getAttribLocation(gl.program, 'a_Position'); // Get the stored loc. of a_Position
-  if (a_Position < 0) {
-    console.log('Failed to get the storage location of a_Position');
-    return;
-  }
   a_UV = gl.getAttribLocation(gl.program, 'a_UV');
-  if (a_UV < 0) {
-    console.log('Failed to get the storage location of a_UV');
-    return;
-  }
-
   u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor'); // Get the storage location of u_FragColor
-  if (!u_FragColor) {
-    console.log('Failed to get the storage location of u_FragColor');
-    return;
-  }
   u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
-  if (!u_ModelMatrix) {
-    console.log('Failed to get the storage location of u_ModelMatrix')
-    return;
-  }
-
   u_GlobalRotateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalRotateMatrix');
-  if (!u_GlobalRotateMatrix) {
-    console.log('Failed to get the storage location of u_GlobalRotateMatrix');
-    return;
-  }
-
   u_ProjectionMatrix = gl.getUniformLocation(gl.program, 'u_ProjectionMatrix');
-  if (!u_ProjectionMatrix){
-    console.log('Failed to get the storage location of u_GlobalRotateMatrix');
-    return;
-  }
+  u_sampler0 = gl.getUniformLocation(gl.program, 'u_sampler0');
+  u_sampler1 = gl.getUniformLocation(gl.program, 'u_sampler1');
+  u_sampler2 = gl.getUniformLocation(gl.program, 'u_sampler2');
+  u_sampler4 = gl.getUniformLocation(gl.program, 'u_sampler4');
+  u_whichTex = gl.getUniformLocation(gl.program, 'u_whichTex');
+
   var projMatrix = new Matrix4();
   projMatrix.setPerspective(70, canvas.width / canvas.height, 0.1, 1000);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMatrix.elements);
-
-  u_sampler0 = gl.getUniformLocation(gl.program, 'u_sampler0');
-  if (!u_sampler0) {
-    console.log('Failed to get the storage location of u_sampler0');
-    return false;
-  }
-  u_whichTex = gl.getUniformLocation(gl.program, 'u_whichTex');
-  if (!u_whichTex) {
-    console.log('Failed to get the storage location of u_whichTex');
-    return false;
-  }
 }
 
 function main() {
@@ -128,10 +106,10 @@ function main() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   actionsHTMLUI();
-  setShapes();
   cameraHandler();
 
   initTextures();
+  setShapes();
 
   requestAnimationFrame(tick);
 }
@@ -151,6 +129,9 @@ function tick(){
   updateCam();
   renderShapes();
   // console.log(g_camPos);
+
+  var duration = performance.now() - now;
+  sendTextToHTML(" ms: " + Math.floor(duration)+" fps: "+ Math.floor(1/dt), "metrics");
 
   requestAnimationFrame(tick);
 }

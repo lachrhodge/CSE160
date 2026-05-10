@@ -2,9 +2,13 @@
 let rotMatrix = null;
 
 let g_pitch = 0; // rotate arond x
-let g_yaw = 90; // rotate around y
+let g_yaw = 0; // rotate around y
 
-let g_camPos = [-1,1.5,.5];
+let g_camPos = [.5,1.5,-1.5];
+let camPosMax = 32; // 64 x 64 area
+
+const camHeight = 1.4;
+const camRadius = 0.3;
 
 function cameraHandler(){
   if(rotMatrix === null){ // default state
@@ -39,40 +43,72 @@ function cameraHandler(){
   // window bc if mouse leaves canvas, then unclick, it will not trigger.
 }
 
+function collidesWithAnyCube(px, py, pz) {
+  for (let solid of solidList) {
+    // expand cube bounds by player size
+    if (
+      px + camRadius > solid.x        &&
+      px - camRadius < solid.x + solid.sx &&
+      // py + camHeight > solid.y        &&
+      // py              < solid.y + cube.sy &&
+      pz + camRadius > solid.z        &&
+      pz - camRadius < solid.z + solid.sz
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 const keysDown = new Set();
 window.addEventListener('keydown', (ev) => keysDown.add(ev.key));
 window.addEventListener('keyup',   (ev) => keysDown.delete(ev.key));
 
 function movementHandler(deltaT){
-    const speed = 3;
-    const yr = g_yaw * Math.PI / 180;
+  const speed = 10;
+  const yr = g_yaw * Math.PI / 180;
 
-    // forward/back along the direction you're facing
-    const fwdX = Math.sin(yr);
-    const fwdZ = -Math.cos(yr);  // negative because WebGL Z points toward you
+  // forward/back along the direction you're facing
+  const fwdX = Math.sin(yr);
+  const fwdZ = -Math.cos(yr);  // negative because WebGL Z points toward you
 
-    if (keysDown.has('w')) { g_camPos[0] += fwdX * speed * deltaT; g_camPos[2] += fwdZ * speed * deltaT; }
-    if (keysDown.has('s')) { g_camPos[0] -= fwdX * speed * deltaT; g_camPos[2] -= fwdZ * speed * deltaT; }
-    // strafe: perpendicular to forward
-    if (keysDown.has('a')) { g_camPos[0] += fwdZ * speed * deltaT; g_camPos[2] -= fwdX * speed * deltaT; }
-    if (keysDown.has('d')) { g_camPos[0] -= fwdZ * speed * deltaT; g_camPos[2] += fwdX * speed * deltaT; }
+  let nx = g_camPos[0];
+  let ny = g_camPos[1];
+  let nz = g_camPos[2];
 
-    if (keysDown.has('q')) { g_camPos[0] += fwdZ * speed * deltaT; g_camPos[2] -= fwdX * speed * deltaT; }
-    if (keysDown.has('e')) { g_camPos[0] -= fwdZ * speed * deltaT; g_camPos[2] += fwdX * speed * deltaT; }
+  if (keysDown.has('w')) { nx += fwdX * speed * deltaT; nz += fwdZ * speed * deltaT; }
+  if (keysDown.has('s')) { nx -= fwdX * speed * deltaT; nz -= fwdZ * speed * deltaT; }
+  // strafe: perpendicular to forward
+  if (keysDown.has('a')) { nx += fwdZ * speed * deltaT; nz -= fwdX * speed * deltaT; }
+  if (keysDown.has('d')) { nx -= fwdZ * speed * deltaT; nz += fwdX * speed * deltaT; }
+
+  nx = Math.min(camPosMax, Math.max(-camPosMax, nx));
+  nz = Math.min(camPosMax, Math.max(-camPosMax, nz));
+
+  if (keysDown.has('q')) {g_yaw -= 90 * deltaT;}
+  if (keysDown.has('e')) {g_yaw += 90 * deltaT;}
+
+  if (!collidesWithAnyCube(nx, g_camPos[1], g_camPos[2])) {
+    g_camPos[0] = nx;
+  }
+  // check Z independently
+  if (!collidesWithAnyCube(g_camPos[0], g_camPos[1], nz)) {
+    g_camPos[2] = nz;
+  }
 }
 
 function updateCam(){
-    // convert to radians for Math.sin()/cos();
-    var yr = g_yaw * Math.PI/180;
-    var pr = g_pitch * Math.PI/180;
+  // convert to radians for Math.sin()/cos();
+  var yr = g_yaw * Math.PI/180;
+  var pr = g_pitch * Math.PI/180;
 
-    var camX = g_camPos[0] + Math.cos(pr) * Math.sin(yr);
-    var camY = g_camPos[1] + Math.sin(pr);
-    var camZ = g_camPos[2] - Math.cos(pr) * Math.cos(yr);
-    
-    rotMatrix.setLookAt(
-        g_camPos[0], g_camPos[1], g_camPos[2],
-        camX,        camY,        camZ,
-        0,           1,           0
-    );
+  var camX = g_camPos[0] + Math.cos(pr) * Math.sin(yr);
+  var camY = g_camPos[1] + Math.sin(pr);
+  var camZ = g_camPos[2] - Math.cos(pr) * Math.cos(yr);
+
+  rotMatrix.setLookAt(
+      g_camPos[0], g_camPos[1], g_camPos[2],
+      camX,        camY,        camZ,
+      0,           1,           0
+  );
 }
