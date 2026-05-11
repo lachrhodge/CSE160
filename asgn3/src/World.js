@@ -84,7 +84,14 @@ function renderShapes(){
 
   if(rotMatrix != null) gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, rotMatrix.elements);
 
-  for(var i = 0; i < geomList.length; i++){
+  if(!g_party){
+    geomList[1].render();
+  } else {
+    geomList[0].color = g_RGB;
+    geomList[0].render();
+  }
+
+  for(var i = 2; i < geomList.length; i++){
     geomList[i].render();
   }
 
@@ -95,22 +102,20 @@ function renderShapes(){
 
 function HSVtoRGB(hue){
   // assume S = 1, V = 1
-  var hueP = hue / 60;
+  var h = hue % 360;
+  var hP = h / 60;
+  var X = 1 - Math.abs(hP % 2 - 1);
+  var i = Math.floor(hP);
 
-  var X = 1 * (1 - Math.abs(hueP % 2 - 1));
-
-  var RGB = [1,1,1,1]
-
-  switch(hueP){
-    case 0 <= hueP < 1: RGB = [1,X,0]; break;
-    case 1 <= hueP < 2: RGB = [X,1,0]; break;
-    case 2 <= hueP < 3: RGB = [0,1,X]; break;
-    case 3 <= hueP < 4: RGB = [0,X,1]; break;
-    case 4 <= hueP < 5: RGB = [X,0,1]; break;
-    case 5 <= hueP < 6: RGB = [1,0,X]; break;
-  }
-
-  return RGB;
+  const sectors = [
+    [1,X,0,1],
+    [X,1,0,1],
+    [0,1,X,1],
+    [0,X,1,1],
+    [X,0,1,1],
+    [1,0,X,1],
+  ];
+  return sectors[i];
 }
 
 function wally(){
@@ -125,11 +130,10 @@ function wally(){
 }
 
 function foresty(){
-  
+
 }
 
-function addCube(x, y, z, sx=1, sy=1, sz=1, texNum=TEX_DIRT, color = WHITE, collide = true) {
-  var cube = new Cube();
+function addCube(x, y, z, sx=1, sy=1, sz=1, texNum=TEX_DIRT, color = WHITE, collide = true, cube = new Cube()) {
   cube.matrix.translate(x, y, z);
   cube.scale(sx, sy, sz);
   cube.texNum = texNum;
@@ -170,14 +174,17 @@ function setShapes(){
   // base_cube.texNum = TEX_GRASS;
   // base_cube.color = GRASS_COL;
   // geomList.push(base_cube);
-  addCube(-32,-1,-32, 64,1,64,TEX_GRASS, GRASS_COL, false);
   
+  var party_cube = new Cube();
+  addCube(-400,-400,-400,800,800,800,TEX_COLOR,g_RGB,false);
+
   var sky_cube = new SkyCube(); // grass
   sky_cube.matrix.translate(-500,-500,-500);
   sky_cube.matrix.scale(1000,1000,1000);
   sky_cube.texNum = TEX_SKY;
   geomList.push(sky_cube);
 
+  addCube(-32,-1,-32, 64,1,64,TEX_GRASS, GRASS_COL, false);
   wally();
 
   addCube(1,0,1,1,1,1,TEX_STONE);

@@ -140,7 +140,7 @@ function tick(){
   // console.log(g_camPos);
 
   if(g_party){
-    hue = g_seconds / 2 * 360;
+    hue = (g_seconds / 4 * 360) % 360;
     g_RGB = HSVtoRGB(hue);
   }
 
