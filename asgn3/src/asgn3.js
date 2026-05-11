@@ -179,10 +179,10 @@ function buttonListener(){
   document.addEventListener("keydown", (event) => {
     if (event.key === "f") {
       if(b1.isNear(g_camPos) && b1.activate()) g_activeList.push(b1);
-      // if(b1.isNear(g_camPos)) {b1.activate(); g_activeList.push(b1);}
-      // if(b1.isNear(g_camPos)) {b1.activate(); g_activeList.push(b1);}
-      // if(b1.isNear(g_camPos)) {b1.activate(); g_activeList.push(b1);}
-      // if(b1.isNear(g_camPos)) {b1.activate(); g_activeList.push(b1);}
+      if(b2.isNear(g_camPos) && b2.activate()) g_activeList.push(b2);
+      if(b3.isNear(g_camPos) && b3.activate()) g_activeList.push(b3);
+      if(b4.isNear(g_camPos) && b4.activate()) g_activeList.push(b4);
+      if(b5.isNear(g_camPos) && b5.activate()) g_activeList.push(b5);
       WIN();
     }
   });

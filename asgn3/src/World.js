@@ -25,6 +25,10 @@ let g_RGB = [1,1,1,1];
 
 //buttons
 var b1 = null;
+var b2 = null;
+var b3 = null;
+var b4 = null;
+var b5 = null;
 
 function initTextures() {
   var images = [
@@ -85,9 +89,6 @@ function sendTexture(image, TEX_NUM) {
 }
 
 function renderShapes(){
-  var startTime = performance.now();
-  // start render
-
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   if(rotMatrix != null) gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, rotMatrix.elements);
@@ -102,13 +103,9 @@ function renderShapes(){
   geomList[2].color = g_RGB;
   geomList[2].render();
 
-  for(var i = 2; i < geomList.length; i++){
+  for(var i = 3; i < geomList.length; i++){
     geomList[i].render();
   }
-
-  // end render
-  var duration = performance.now() - startTime;
-  sendTextToHTML(" ms: " + Math.floor(duration)+" fps: "+ Math.floor(1000/duration), "metrics");
 }
 
 function HSVtoRGB(hue){
@@ -152,7 +149,7 @@ function towery(){
 }
 
 function foresty(){
-  forest(30,30,30,10,-30);
+  forest(25,30,30,10,-30);
 }
 
 function forest(numTrees = 5, xMax=20, zMax=20, xMin=-20, zMin=-20){
@@ -179,6 +176,26 @@ function buttony(){
   b1 = new Button(30.5,0.1,30.5);
   b1.addToWorld();
   addCube(29.5,0,29.5,1.5,0.1,1.5,TEX_STONE,[.7,.1,.7,.8],false);
+
+  b2 = new Button(30.5,0.1,30.5);
+  b2.addToWorld();
+
+  b3 = new Button(30.5,0.1,30.5);
+  b3.addToWorld();
+
+  b4 = new Button(30.5,0.1,30.5);
+  b4.addToWorld();
+
+  b5 = new Button(30.5,0.1,30.5);
+  b5.addToWorld();
+}
+
+function addHouseClosed(x,y,z){
+  addCube(x,y,z,10,4,6,TEX_TREE,WHITE,false);
+  addCube(x-.25,y,z-.25,10.5,.5,6.5,TEX_STONE); // foundation
+  addCube(x+10,y+.5,z+2.4,.1,2.2,1.2,TEX_STONE,WHITE,false);
+  addCube(x+10,y+.5,z+2.5,.125,2,1,TEX_DIRT,WHITE,false);
+  addCube(x+10.25,y,z+2,.25,.25,2,TEX_STONE,WHITE,false);
 }
 
 function addCube(x, y, z, sx=1, sy=1, sz=1, texNum=TEX_DIRT, color = WHITE, collide = true, cube = new Cube()) {
@@ -240,6 +257,9 @@ function setShapes(){
   foresty();
   towery();
   buttony();
+
+  addHouseClosed(-10,0,-10);
+  //addHouseClosed(10,0,10);
 
   addCube(-3,1.75,1,1,1,1, TEX_UV_DEBUG, WHITE, false);
 
