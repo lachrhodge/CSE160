@@ -23,32 +23,36 @@ var FSHADER_SOURCE = `
   uniform sampler2D u_sampler0;
   uniform sampler2D u_sampler1;
   uniform sampler2D u_sampler2;
+  uniform sampler2D u_sampler3;
   uniform sampler2D u_sampler4;
+  uniform sampler2D u_sampler5;
   uniform int u_whichTex;
   varying vec2 v_UV;
 
   void main() {
 
-    if(u_whichTex == 4){
-      gl_FragColor = texture2D(u_sampler4, v_UV);
-    } else if(u_whichTex == -2){
+    if(u_whichTex == -2){
       gl_FragColor = u_FragColor;
     } else if(u_whichTex == -1){
       gl_FragColor = vec4(v_UV, 1.0, 1.0);
     } else if(u_whichTex == 0){
-      gl_FragColor = texture2D(u_sampler0, v_UV);
+      gl_FragColor = texture2D(u_sampler0, v_UV) * u_FragColor;
     } else if(u_whichTex == 1){
-      vec4 texColor = texture2D(u_sampler1, v_UV);
-      gl_FragColor = texColor * u_FragColor;
+      gl_FragColor = texture2D(u_sampler1, v_UV) * u_FragColor;
     } else if(u_whichTex == 2){
-      gl_FragColor = texture2D(u_sampler2, v_UV);
+      gl_FragColor = texture2D(u_sampler2, v_UV) * u_FragColor;
+    } else if(u_whichTex == 4){
+      gl_FragColor = texture2D(u_sampler4, v_UV) * u_FragColor;
+    } else if(u_whichTex == 3){
+      gl_FragColor = texture2D(u_sampler3, v_UV) * u_FragColor; 
+    } else if(u_whichTex == 5){
+      gl_FragColor = texture2D(u_sampler5, v_UV) * u_FragColor; 
     } else {
       gl_FragColor = vec4(1.0,.2,.2,1);  
     }
 
   }`
 
-// global variables
 // canvas and webGL
 let canvas;
 let gl;
@@ -62,7 +66,10 @@ let u_whichTex;
 let u_sampler0;
 let u_sampler1;
 let u_sampler2;
+let u_sampler3;
 let u_sampler4;
+
+let g_party = false;
 
 function setupWebGL(){ // 
   canvas = document.getElementById('webgl'); // Retrieve <canvas> elemment
@@ -89,7 +96,9 @@ function connectVarGLSL(){ // compressed down bc I don't want to look at it
   u_sampler0 = gl.getUniformLocation(gl.program, 'u_sampler0');
   u_sampler1 = gl.getUniformLocation(gl.program, 'u_sampler1');
   u_sampler2 = gl.getUniformLocation(gl.program, 'u_sampler2');
+  u_sampler3 = gl.getUniformLocation(gl.program, 'u_sampler3');
   u_sampler4 = gl.getUniformLocation(gl.program, 'u_sampler4');
+  u_sampler5 = gl.getUniformLocation(gl.program, 'u_sampler5');
   u_whichTex = gl.getUniformLocation(gl.program, 'u_whichTex');
 
   var projMatrix = new Matrix4();
@@ -130,6 +139,11 @@ function tick(){
   renderShapes();
   // console.log(g_camPos);
 
+  if(g_party){
+    hue = g_seconds / 2 * 360;
+    g_RGB = HSVtoRGB(hue);
+  }
+
   var duration = performance.now() - now;
   sendTextToHTML(" ms: " + Math.floor(duration)+" fps: "+ Math.floor(1/dt), "metrics");
 
@@ -137,7 +151,8 @@ function tick(){
 }
 
 function actionsHTMLUI(){
-    document.getElementById("Reset").onclick = () => {rotMatrix = new Matrix4(); g_pitch = 0; g_yaw = 90; g_camPos = [-1,1.5,.5]; } 
+  document.getElementById("Reset").onclick = () => {rotMatrix = new Matrix4(); g_pitch = 0; g_yaw = 90; g_camPos = [-1,1.5,.5]; } 
+  document.querySelector("#WoolBox").onclick = () => {g_party = !g_party; console.log(g_party);}
 }
 
 function sendTextToHTML(text, htmlID){

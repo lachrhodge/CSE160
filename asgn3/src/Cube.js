@@ -1,11 +1,3 @@
-const TEX_COLOR    = -2;
-const TEX_UV_DEBUG = -1;
-const TEX_DIRT     = 0;
-const TEX_GRASS    = 1;
-const TEX_STONE    = 2;
-const TEX_WOOL     = 3;
-const TEX_SKY      = 4;
-
 const GRASS_COL    = [0.4, 0.7, 0.4, 1.0];
 const CLOUD_COL    = [0.7, 0.8, 0.8, 1.0];
 

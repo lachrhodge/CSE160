@@ -2,12 +2,11 @@
 let rotMatrix = null;
 
 let g_pitch = 0; // rotate arond x
-let g_yaw = 0; // rotate around y
+let g_yaw = 90; // rotate around y
 
-let g_camPos = [.5,1.5,-1.5];
+let g_camPos = [-1,1.5,.5];
 let camPosMax = 32; // 64 x 64 area
 
-const camHeight = 1.4;
 const camRadius = 0.3;
 
 function cameraHandler(){
@@ -43,15 +42,14 @@ function cameraHandler(){
   // window bc if mouse leaves canvas, then unclick, it will not trigger.
 }
 
-function collidesWithAnyCube(px, py, pz) {
+function collideCheck(px, py, pz) {
   for (let solid of solidList) {
     // expand cube bounds by player size
     if (
-      px + camRadius > solid.x        &&
-      px - camRadius < solid.x + solid.sx &&
-      // py + camHeight > solid.y        &&
-      // py              < solid.y + cube.sy &&
-      pz + camRadius > solid.z        &&
+      
+      px + camRadius > solid.x  &&
+      px - camRadius < solid.x + solid.sx  &&
+      pz + camRadius > solid.z  &&
       pz - camRadius < solid.z + solid.sz
     ) {
       return true;
@@ -73,7 +71,6 @@ function movementHandler(deltaT){
   const fwdZ = -Math.cos(yr);  // negative because WebGL Z points toward you
 
   let nx = g_camPos[0];
-  let ny = g_camPos[1];
   let nz = g_camPos[2];
 
   if (keysDown.has('w')) { nx += fwdX * speed * deltaT; nz += fwdZ * speed * deltaT; }
@@ -88,11 +85,13 @@ function movementHandler(deltaT){
   if (keysDown.has('q')) {g_yaw -= 90 * deltaT;}
   if (keysDown.has('e')) {g_yaw += 90 * deltaT;}
 
-  if (!collidesWithAnyCube(nx, g_camPos[1], g_camPos[2])) {
+  // if all checked together, you end up standing still, unable to move
+  // check x independently
+  if (!collideCheck(nx, g_camPos[1], g_camPos[2])){
     g_camPos[0] = nx;
   }
   // check Z independently
-  if (!collidesWithAnyCube(g_camPos[0], g_camPos[1], nz)) {
+  if (!collideCheck(g_camPos[0], g_camPos[1], nz)){
     g_camPos[2] = nz;
   }
 }
