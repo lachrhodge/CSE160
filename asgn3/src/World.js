@@ -9,14 +9,22 @@ const TEX_WOOL     = 3;
 const TEX_SKY      = 4;
 const TEX_TREE     = 5;
 
-const WHITE = [1,1,1,1];
-const BLACK = [0,0,0,1];
+const WHITE        = [1,1,1,1];
+const BLACK        = [0,0,0,1];
+const OFF          = [0.7, 0.1, 0.1, 0.85];
+const ON           = [0.1, 0.7, 0.1, 0.85];
+const GRASS_COL    = [0.4, 0.7, 0.4, 1.0];
+const CLOUD_COL    = [0.7, 0.8, 0.8, 1.0];
+const TREE_COL     = [0.3, 0.4, 0.25, 1.0];
 
 let geomList = [];
 let solidList = []; // attempting collision
 
 let hue = 0;
 let g_RGB = [1,1,1,1];
+
+//buttons
+var b1 = null;
 
 function initTextures() {
   var images = [
@@ -91,6 +99,9 @@ function renderShapes(){
     geomList[0].render();
   }
 
+  geomList[2].color = g_RGB;
+  geomList[2].render();
+
   for(var i = 2; i < geomList.length; i++){
     geomList[i].render();
   }
@@ -119,18 +130,55 @@ function HSVtoRGB(hue){
 }
 
 function wally(){
-  addCube(-32,0,-32,63,4,1, TEX_STONE);
+  addCube(-32,0,-32,31,4,1, TEX_STONE);
+  addCube(2,0,-32,29,4,1, TEX_STONE);
   addCube(31,0,-32,1,4,63,TEX_STONE);
   addCube(-32,0,31,63,4,1, TEX_STONE);
   addCube(-32,0,-32,1,4,63,TEX_STONE);
-  addCube(-32,4,-32,63,1,1, TEX_GRASS, GRASS_COL);
-  addCube(31,4,-32,1,1,63,TEX_GRASS, GRASS_COL);
-  addCube(-32,4,31,63,1,1, TEX_GRASS, GRASS_COL);
-  addCube(-32,4,-32,1,1,63,TEX_GRASS, GRASS_COL);
+
+  //false wall
+  addCube(-0.999,0.001,-31.1,2.998,4,0.1,TEX_STONE,[.8,.8,.8,1],false);
+}
+
+function towery(){
+  addCube(-3,0,-3,4,10,1,TEX_STONE);
+  addCube(-3,0,2,4,10,1,TEX_STONE);
+  addCube(1,0,1,1,10,1,TEX_STONE);
+  addCube(1,0,-2,1,10,1,TEX_STONE);
+  addCube(1,2.5,-1,1,7.5,2,TEX_STONE,WHITE,false);
+  addCube(-4,0,-2,1,10,4,TEX_STONE);
+  addCube(-3,0,-2,4,.01,4,TEX_TREE,WHITE,false);
+  addCube(-3,3,-2,4,.01,4,TEX_TREE,WHITE,false);
 }
 
 function foresty(){
+  forest(30,30,30,10,-30);
+}
 
+function forest(numTrees = 5, xMax=20, zMax=20, xMin=-20, zMin=-20){
+  var cols = Math.ceil(Math.sqrt(numTrees));
+  var rows = Math.ceil(numTrees / cols);
+
+  var cellW = (xMax - xMin) / cols;
+  var cellD = (zMax - zMin) / rows;
+
+  var count = 0;
+  for(var r = 0; r < rows && count < numTrees; r++){
+    for(var c = 0; c < cols && count < numTrees; c++){
+      // random position within each cell
+      var xT = xMin + c * cellW + Math.random() * cellW;
+      var zT = zMin + r * cellD + Math.random() * cellD;
+
+      addTree(xT, 0, zT, Math.floor(Math.random() * 4) + 2, Math.floor(Math.random() * 3) + 2);
+      count++;
+    }
+  }
+}
+
+function buttony(){
+  b1 = new Button(30.5,0.1,30.5);
+  b1.addToWorld();
+  addCube(29.5,0,29.5,1.5,0.1,1.5,TEX_STONE,[.7,.1,.7,.8],false);
 }
 
 function addCube(x, y, z, sx=1, sy=1, sz=1, texNum=TEX_DIRT, color = WHITE, collide = true, cube = new Cube()) {
@@ -159,11 +207,13 @@ function addTree(x,y,z, tH = 2,tr = 2){
       y + tr + 2*i,
       z - C*tH,
       2*C*tH + 1, 2, 2*C*tH + 1,
-      TEX_WOOL, GRASS_COL, false
+      TEX_WOOL, TREE_COL, false
     );
+  }
 }
 
-}
+// check button area collide
+
 
 // Setting world objects. ------------------------------------------------------
 
@@ -175,23 +225,22 @@ function setShapes(){
   // base_cube.color = GRASS_COL;
   // geomList.push(base_cube);
   
-  var party_cube = new Cube();
-  addCube(-400,-400,-400,800,800,800,TEX_COLOR,g_RGB,false);
+  addCube(-400,-400,-400,800,800,800,TEX_COLOR,g_RGB,false); // 0
 
-  var sky_cube = new SkyCube(); // grass
+  var sky_cube = new SkyCube(); // grass 1
   sky_cube.matrix.translate(-500,-500,-500);
   sky_cube.matrix.scale(1000,1000,1000);
   sky_cube.texNum = TEX_SKY;
   geomList.push(sky_cube);
 
+  addCube(-3,.5,1,1,1,1, TEX_COLOR, g_RGB, true); // 2
+
   addCube(-32,-1,-32, 64,1,64,TEX_GRASS, GRASS_COL, false);
   wally();
+  foresty();
+  towery();
+  buttony();
 
-  addCube(1,0,1,1,1,1,TEX_STONE);
-  addCube(5,3,5,1,1,1, TEX_UV_DEBUG, WHITE, false);
+  addCube(-3,1.75,1,1,1,1, TEX_UV_DEBUG, WHITE, false);
 
-  addTree(10,0,5,3,2);
-  addTree(10,0,0,4,3);
-  addTree(-10,0,1,5,4);
-  addTree(10,0,-5,3,4);
 }

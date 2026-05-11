@@ -11,13 +11,23 @@
 
     <p id="metrics">--</p>
 
-    <canvas id="webgl" width="400" height="400"></canvas>
-
-    <p>WASD or Arrows to move, Q/E to look left/right or drag click to look around!</p>
+    <div style="position:relative; width:400px; height:400px;">
+      <canvas id="webgl" width="400" height="400"></canvas>
+      <div id="circle" style="position:absolute; top:93.5%; width:25px; height:25px; border-radius:50%; background:rgb(255, 255, 0);"></div>
+    </div>
+    <p>
+      WASD or Arrows to move, Q/E to look left/right or drag click to look around!
+      Press F to interact with buttons when the yellow circle appears.
+    </p>
 
     <button id="Reset" type="button">Reset</button>
 
     <button id="WoolBox" type="button">Toggle Party Skybox</button>
+
+    FOV:<input type="range" id="fovSlider" max="100" min="50" value="70">
+
+    <p>Can you find all 5 buttons?</p>
+    <p id="buttCount">--</p>
 
     <script src="asgn3.js"></script>
     <script src="Camera.js"></script>

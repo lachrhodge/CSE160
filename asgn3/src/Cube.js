@@ -1,6 +1,3 @@
-const GRASS_COL    = [0.4, 0.7, 0.4, 1.0];
-const CLOUD_COL    = [0.7, 0.8, 0.8, 1.0];
-
 class Cube{
   constructor(){
     this.type = 'cube';
@@ -55,7 +52,7 @@ class SkyCube{
   render(){
     var rgba = this.color;//g_colors[i];
 
-    const P = 1/512;
+    const P = 1/512; // trying to fix the clipping at top corners of the world
 
     gl.depthMask(false);
     
@@ -108,4 +105,39 @@ function drawTriangle3DUV(vertices, uv) { // basically a method of
   gl.enableVertexAttribArray(a_UV);
 
   gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+class Button{
+
+  constructor(x=0,y=0,z=0){
+    this.type   = 'button';
+    this.flag   = -1; // uninitialized
+    this.state  = 0;
+    this.color  = [.7,.8,0,.65];
+    this.shaft  = new Cube();
+    this.button = new Cube();
+
+    this.position = [x,y,z];
+  }
+
+  addToWorld(){
+    addCube(this.position[0], this.position[1],this.position[2],.3,1,.3,TEX_STONE,this.color,true,this.shaft);
+    addCube(this.position[0]+.04,this.position[1] + 1,this.position[2]+.04,.22,.05,.22,TEX_WOOL,OFF,false,this.button);
+  }
+
+  activate(){
+    if(this.state === 0){
+      this.state = 1;
+      geomList.splice(geomList.indexOf(this.button), 1);
+      addCube(this.position[0]+.04,this.position[1] + 1,this.position[2]+.04,.22,.05,.22,TEX_WOOL,ON,false);
+      return true;
+    }
+    return false;
+  }
+
+  isNear(playerPos){
+      var dx = playerPos[0] - this.position[0];
+    var dz = playerPos[2] - this.position[2];
+    return (dx*dx + dz*dz) < (1.75 * 1.75); 
+  }
 }

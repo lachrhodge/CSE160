@@ -4,12 +4,14 @@ let rotMatrix = null;
 let g_pitch = 0; // rotate arond x
 let g_yaw = 90; // rotate around y
 
-let g_camPos = [-1,1.5,.5];
-let camPosMax = 32; // 64 x 64 area
+let g_camPos = [0,0,0];
 
 const camRadius = 0.3;
+// const camAbove = 0.49;
+// const camBelow = 0.3; // want to allow for a 0.2 unit step up
 
 function cameraHandler(){
+  g_camPos = [...g_defaultPos];
   if(rotMatrix === null){ // default state
     rotMatrix = new Matrix4();
   }
@@ -46,9 +48,10 @@ function collideCheck(px, py, pz) {
   for (let solid of solidList) {
     // expand cube bounds by player size
     if (
-      
       px + camRadius > solid.x  &&
       px - camRadius < solid.x + solid.sx  &&
+      // py + camAbove > solid.y + solid.sy &&
+      // py - camBelow < solid.y &&
       pz + camRadius > solid.z  &&
       pz - camRadius < solid.z + solid.sz
     ) {
@@ -71,6 +74,7 @@ function movementHandler(deltaT){
   const fwdZ = -Math.cos(yr);  // negative because WebGL Z points toward you
 
   let nx = g_camPos[0];
+  // let ny = g_camPos[1];
   let nz = g_camPos[2];
 
   if (keysDown.has('w')) { nx += fwdX * speed * deltaT; nz += fwdZ * speed * deltaT; }
@@ -78,9 +82,6 @@ function movementHandler(deltaT){
   // strafe: perpendicular to forward
   if (keysDown.has('a')) { nx += fwdZ * speed * deltaT; nz -= fwdX * speed * deltaT; }
   if (keysDown.has('d')) { nx -= fwdZ * speed * deltaT; nz += fwdX * speed * deltaT; }
-
-  nx = Math.min(camPosMax, Math.max(-camPosMax, nx));
-  nz = Math.min(camPosMax, Math.max(-camPosMax, nz));
 
   if (keysDown.has('q')) {g_yaw -= 90 * deltaT;}
   if (keysDown.has('e')) {g_yaw += 90 * deltaT;}
@@ -90,6 +91,9 @@ function movementHandler(deltaT){
   if (!collideCheck(nx, g_camPos[1], g_camPos[2])){
     g_camPos[0] = nx;
   }
+  // if (!collideCheck(g_camPos[0], ny, g_camPos[2])){
+  //   g_camPos[2] = nz;
+  // }
   // check Z independently
   if (!collideCheck(g_camPos[0], g_camPos[1], nz)){
     g_camPos[2] = nz;

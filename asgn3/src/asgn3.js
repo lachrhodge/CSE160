@@ -56,6 +56,7 @@ var FSHADER_SOURCE = `
 // canvas and webGL
 let canvas;
 let gl;
+let fov = 70;
 let u_FragColor;
 let a_Position;
 let a_UV;
@@ -70,6 +71,10 @@ let u_sampler3;
 let u_sampler4;
 
 let g_party = false;
+const g_defaultPos = [-1,1.5,0];
+let g_nearButton = false;
+const dot = document.getElementById("circle");
+let g_activeList = [];
 
 function setupWebGL(){ // 
   canvas = document.getElementById('webgl'); // Retrieve <canvas> elemment
@@ -102,13 +107,14 @@ function connectVarGLSL(){ // compressed down bc I don't want to look at it
   u_whichTex = gl.getUniformLocation(gl.program, 'u_whichTex');
 
   var projMatrix = new Matrix4();
-  projMatrix.setPerspective(70, canvas.width / canvas.height, 0.1, 1000);
+  projMatrix.setPerspective(fov, canvas.width / canvas.height, 0.1, 1000);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMatrix.elements);
 }
 
 function main() {
   setupWebGL();
   connectVarGLSL();
+
 
   //initialize canvas.
   gl.clearColor(0.0, 0.0, 0.0, 1);
@@ -119,6 +125,8 @@ function main() {
 
   initTextures();
   setShapes();
+
+  buttonListener();
 
   requestAnimationFrame(tick);
 }
@@ -137,22 +145,54 @@ function tick(){
   movementHandler(dt);
   updateCam();
   renderShapes();
-  // console.log(g_camPos);
 
-  if(g_party){
-    hue = (g_seconds / 4 * 360) % 360;
-    g_RGB = HSVtoRGB(hue);
+  hue = (g_seconds / 4 * 360) % 360;
+  g_RGB = HSVtoRGB(hue);
+
+  // button checks
+  g_nearButton = b1.isNear(g_camPos);
+
+  if(g_nearButton){
+    dot.style.background = "yellow";
+  } else {
+    dot.style.background = "transparent";
   }
-
+  
   var duration = performance.now() - now;
   sendTextToHTML(" ms: " + Math.floor(duration)+" fps: "+ Math.floor(1/dt), "metrics");
-
+  sendTextToHTML("Buttons found: "+ g_activeList.length+"/5", "buttCount");
   requestAnimationFrame(tick);
 }
 
 function actionsHTMLUI(){
-  document.getElementById("Reset").onclick = () => {rotMatrix = new Matrix4(); g_pitch = 0; g_yaw = 90; g_camPos = [-1,1.5,.5]; } 
-  document.querySelector("#WoolBox").onclick = () => {g_party = !g_party; console.log(g_party);}
+  document.getElementById("Reset").onclick = () => {rotMatrix = new Matrix4(); g_pitch = 0; g_yaw = 90; g_camPos = [...g_defaultPos]; } 
+  document.querySelector("#WoolBox").onclick = () => {g_party = !g_party;}
+  document.getElementById("fovSlider").addEventListener("mousemove", (event) => {
+    fov = Number(event.target.value);
+    var projMatrix = new Matrix4();
+    projMatrix.setPerspective(fov, canvas.width / canvas.height, 0.1, 1000);
+    gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMatrix.elements);
+  });
+}
+
+function buttonListener(){
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "f") {
+      if(b1.isNear(g_camPos) && b1.activate()) g_activeList.push(b1);
+      // if(b1.isNear(g_camPos)) {b1.activate(); g_activeList.push(b1);}
+      // if(b1.isNear(g_camPos)) {b1.activate(); g_activeList.push(b1);}
+      // if(b1.isNear(g_camPos)) {b1.activate(); g_activeList.push(b1);}
+      // if(b1.isNear(g_camPos)) {b1.activate(); g_activeList.push(b1);}
+      WIN();
+    }
+  });
+}
+
+function WIN(){
+  if(g_activeList.length >= 5){
+    window.location.replace("https://www.youtube.com/watch?v=QDia3e12czc");
+    //window.location.href = "https://youtu.be/dQw4w9WgXcQ?si=0oz9HEph8dWB8xcq";
+  }
 }
 
 function sendTextToHTML(text, htmlID){
