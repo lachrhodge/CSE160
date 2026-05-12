@@ -70,8 +70,12 @@ let u_sampler2;
 let u_sampler3;
 let u_sampler4;
 
+const g_defaultPos = [7.5,1.5,-7];
+let g_pitch = 0; // rotate arond x
+let g_yaw = 270; // rotate around y
+
+
 let g_party = false;
-const g_defaultPos = [-1,1.5,0];
 let g_nearButton = false;
 const dot = document.getElementById("circle");
 let g_activeList = [];
@@ -158,6 +162,8 @@ function tick(){
     dot.style.background = "transparent";
   }
   
+  console.log(g_camPos);
+
   var duration = performance.now() - now;
   sendTextToHTML(" ms: " + Math.floor(duration)+" fps: "+ Math.floor(1/dt), "metrics");
   sendTextToHTML("Buttons found: "+ g_activeList.length+"/5", "buttCount");

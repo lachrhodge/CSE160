@@ -1,9 +1,6 @@
 // Camera.js for asgn3, handles all things camera
 let rotMatrix = null;
 
-let g_pitch = 0; // rotate arond x
-let g_yaw = 90; // rotate around y
-
 let g_camPos = [0,0,0];
 
 const camRadius = 0.3;
