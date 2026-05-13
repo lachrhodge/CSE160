@@ -32,6 +32,8 @@ var b3 = null;
 var b4 = null;
 var b5 = null;
 
+const batches = {};
+
 function initTextures() {
   var images = [
     { src: './textures/dirt.png',  num: TEX_DIRT  },
@@ -172,7 +174,7 @@ function towery(){
 }
 
 function foresty(){
-  forest(20,14,-6,5,14);
+  forest(10,14,-6,5,14);
   addTree(15,0,13.5,3,3);
   addTree(13,0,15,3,3);
 }
@@ -204,10 +206,10 @@ function buttony(){
   b2 = new Button(-15.65,0.1,15.35); // dance floor
   b2.addToWorld();
 
-  b3 = new Button(-15,0.1,-7.5); // alley
+  b3 = new Button(-15.75,0.1,-7.5); // alley
   b3.addToWorld();
 
-  b4 = new Button(30.5,0.1,30.5); // cows
+  b4 = new Button(13,0.1,-13); // cows
   b4.addToWorld();
 
   b5 = new Button(-3.65,0.1,-20.65); // hiden beyond the wall.
@@ -280,6 +282,63 @@ function addCube(x, y, z, sx=1, sy=1, sz=1, texNum=TEX_DIRT, color = WHITE, coll
   if(collide) solidList.push({x,y,z,sx,sy,sz}); // store for collision
 }
 
+function addSheep(x, y, z, dir = 0) { // 0 = fakewall facing, cw from there
+  const wool = [0.9, 0.9, 0.9, 1.0];
+  const skin = [0.6, 0.4, 0.3, 1.0];
+
+  var bodyScales = [1.25,.75]; // blen, bwid = bhei
+  var headOffset = [1,-.25,.375,.125]; // opp end, same end, up, middle of
+  var legOffs    = [1,.5];
+  var loff       = [[0,0],[0,0],[0,0]]; // x,z, in order of ^, >, / (diag)
+
+  if(dir % 4 == 0){
+    var SX = bodyScales[1];
+    var SZ = bodyScales[0];
+  
+    var hx = headOffset[3];
+    var hz = headOffset[1];
+
+    loff = [[legOffs[1],0],[0,legOffs[0]],[legOffs[1],legOffs[0]]];
+
+  } else if(dir % 4 == 1){
+    var SX = bodyScales[0];
+    var SZ = bodyScales[1];
+  
+    var hx = headOffset[0];
+    var hz = headOffset[3];
+
+    loff = [[0,legOffs[1]],[legOffs[0],0],[legOffs[0],legOffs[1]]];
+  
+  } else if(dir % 4 == 2){
+    var SX = bodyScales[1];
+    var SZ = bodyScales[0];
+
+    var hx = headOffset[3];
+    var hz = headOffset[0];
+
+    loff = [[legOffs[1],0],[0,legOffs[0]],[legOffs[1],legOffs[0]]];
+  
+  } else if(dir % 4 == 3){
+    var SX = bodyScales[0];
+    var SZ = bodyScales[1];
+
+    var hx = headOffset[1];
+    var hz = headOffset[3];
+
+    loff = [[0,legOffs[1]],[legOffs[0],0],[legOffs[0],legOffs[1]]];
+  }
+
+  addCube(x,y+.3,z,SX,bodyScales[1],SZ, TEX_WOOL);
+  addCube(hx+x,y+.675,hz+z,.5,.5,.5,TEX_WOOL);
+
+  addCube(x,y,z,.25,.3,.25,TEX_TREE,[1,1,1,.7],false);
+  for(var i = 0; i < 3; i++){
+    var off = loff[i];
+    addCube(x + off[0],y,z+off[1],.25,.3,.25,TEX_TREE,[1,1,1,.7],false);
+  }
+
+}
+
 // tH --> tree height, total height -> tH + 2, tH > 2, tH must even
 // tr --> height of trunk keep between 2 and 5
 function addTree(x,y,z, tH = 2,tr = 2){
@@ -332,10 +391,16 @@ function setShapes(){
   towery();
   buttony();
 
-  addHouseClosed(-15.75,0,-15);
-  addHouseClosed(-15.75,0,-6);
+  addHouseClosed(-15,0,-12);
+  // addHouseClosed(-15.75,0,-6);
 
   addPasture(4,-8);
 
   addCube(-3,1.75,1,1,1,1, TEX_UV_DEBUG, WHITE, false);
+  addSheep(10,0,-12,0);
+  addSheep(8,0,-11,1);
+  addSheep(14,0,-14,2);
+  addSheep(7,0,-13,2);
+  addSheep(13,0,-12,1);
+  addSheep(12,0,-13,2);
 }

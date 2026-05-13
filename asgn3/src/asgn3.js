@@ -80,6 +80,9 @@ let g_nearButton = false;
 const dot = document.getElementById("circle");
 let g_activeList = [];
 
+var g_fpsBuffer = [];
+
+
 function setupWebGL(){ // 
   canvas = document.getElementById('webgl'); // Retrieve <canvas> elemment
   gl = canvas.getContext("webgl", {preserveDrawingBuffer: true}); // Get the rendering context for WebGL
@@ -132,12 +135,19 @@ function main() {
 
   buttonListener();
 
+  setInterval(() => {
+  var avgFps = Math.floor(g_fpsBuffer.reduce((a,b) => a+b, 0) / g_fpsBuffer.length);
+  sendTextToHTML("fps: "+ avgFps, "fps");
+  sendTextToHTML("Buttons found: " + g_activeList.length + "/5", "buttCount");
+}, 500);
+
   requestAnimationFrame(tick);
 }
 
 var g_startTime = performance.now();
 var g_seconds = (performance.now() - g_startTime) / 1000;
 var t_last = performance.now();
+var duration = 0;
 
 function tick(){
   const now = performance.now();
@@ -154,15 +164,16 @@ function tick(){
   g_RGB = HSVtoRGB(hue);
 
   // button checks
-  g_nearButton = b1.isNear(g_camPos) || b2.isNear(g_camPos) || b3.isNear(g_camPos) || b4.isNear(g_camPos) || b5.isNear(g_camPos);
-
+  g_nearButton = [b1,b2,b3,b4,b5].some(b => b.isNear(g_camPos));
   dot.style.background = g_nearButton ? "yellow" : "transparent";
   
-  console.log(g_camPos);
+  // console.log(g_camPos);
 
-  var duration = performance.now() - now;
-  sendTextToHTML(" ms: " + Math.floor(duration)+" fps: "+ Math.floor(1/dt), "metrics");
-  sendTextToHTML("Buttons found: "+ g_activeList.length+"/5", "buttCount");
+  var duration = performance.now() - now;  
+  sendTextToHTML("ms: "+ Math.floor(duration), "ms");
+  g_fpsBuffer.push(1/dt);
+  if(g_fpsBuffer.length > 10) g_fpsBuffer.shift();
+
   requestAnimationFrame(tick);
 }
 
@@ -171,7 +182,6 @@ function actionsHTMLUI(){
   document.querySelector("#WoolBox").onclick = () => {g_party = !g_party;}
   document.getElementById("fovSlider").addEventListener("mousemove", (event) => {
     fov = Number(event.target.value);
-    var projMatrix = new Matrix4();
     projMatrix.setPerspective(fov, canvas.width / canvas.height, 0.1, 1000);
     gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMatrix.elements);
   });
@@ -199,7 +209,7 @@ function WIN(){
 
 function sendTextToHTML(text, htmlID){
   var htmlEl = document.getElementById(htmlID);
-  if(!htmlID){
+  if(!htmlEl){
     console.log("Failed to get "+ htmlID+" from HTML")
     return;
   }

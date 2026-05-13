@@ -63,7 +63,7 @@ window.addEventListener('keydown', (ev) => keysDown.add(ev.key));
 window.addEventListener('keyup',   (ev) => keysDown.delete(ev.key));
 
 function movementHandler(deltaT){
-  const speed = 10;
+  const speed = 5;
   const yr = g_yaw * Math.PI / 180;
 
   // forward/back along the direction you're facing
