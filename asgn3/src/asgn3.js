@@ -70,9 +70,9 @@ let u_sampler2;
 let u_sampler3;
 let u_sampler4;
 
-const g_defaultPos = [7.5,1.5,-7];
+const g_defaultPos = [-2,1.5,0];
 let g_pitch = 0; // rotate arond x
-let g_yaw = 270; // rotate around y
+let g_yaw = 90; // rotate around y
 
 
 let g_party = false;
@@ -154,13 +154,9 @@ function tick(){
   g_RGB = HSVtoRGB(hue);
 
   // button checks
-  g_nearButton = b1.isNear(g_camPos);
+  g_nearButton = b1.isNear(g_camPos) || b2.isNear(g_camPos) || b3.isNear(g_camPos) || b4.isNear(g_camPos) || b5.isNear(g_camPos);
 
-  if(g_nearButton){
-    dot.style.background = "yellow";
-  } else {
-    dot.style.background = "transparent";
-  }
+  dot.style.background = g_nearButton ? "yellow" : "transparent";
   
   console.log(g_camPos);
 

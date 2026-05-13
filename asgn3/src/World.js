@@ -104,7 +104,7 @@ function renderShapes(){
 
   // thanks claude
   const batches = {};
-  for(var i = 3; i < geomList.length; i++){
+  for(var i = 2; i < geomList.length; i++){
     const key = geomList[i].texNum;
     if(!batches[key]) batches[key] = [];
     batches[key].push(geomList[i]);
@@ -113,6 +113,8 @@ function renderShapes(){
   for(var i = 0; i < danceFloor.length;i++){
     danceFloor[i].color = HSVtoRGB(hue + i);
   }
+
+  geomList[2].color = g_RGB;
 
   for(const texNum in batches){
     batches[texNum].forEach(cube => cube.render());
@@ -139,14 +141,23 @@ function HSVtoRGB(hue){
 }
 
 function wally(){
-  addCube(-17,0,-17,6,4,1, TEX_STONE);
-  addCube(2,0,-32,29,4,1, TEX_STONE);
-  addCube(31,0,-32,1,4,63,TEX_STONE);
-  addCube(-32,0,31,63,4,1, TEX_STONE);
+  addCube(-17,0,-17,12,4,1, TEX_STONE);
+  addCube(-2,0,-17,29,4,1, TEX_STONE);
+  addCube(16,0,-17,1,4,33,TEX_STONE);
+  addCube(-16,0,16,32,4,1, TEX_STONE);
   addCube(-17,0,-16,1,4,33,TEX_STONE);
 
   //false wall
-  addCube(-10.999,0.001,-16.1,2.998,4,0.1,TEX_STONE,[.8,.8,.8,1],false);
+  addCube(-4.999,0.001,-16.1,2.998,3,0.1,TEX_STONE,[.95,.95,.9,1],false);
+
+  // floor / ceiling
+  addCube(-5,-.1,-21,3,.1,5,TEX_STONE,WHITE,false);
+  addCube(-5,3,-21,3,1,5,TEX_STONE,WHITE,false);
+
+  // hidden walls
+  addCube(-6,0,-21,1,3,4,TEX_STONE,WHITE);
+  addCube(-5,0,-22,3,3,1,TEX_STONE,WHITE);
+  addCube(-2,0,-21,1,3,4,TEX_STONE,WHITE);
 }
 
 function towery(){
@@ -161,8 +172,9 @@ function towery(){
 }
 
 function foresty(){
-  forest(25,30,30,10,-30);
-  //forest(10,10,-6,-12,-28);
+  forest(20,14,-6,5,14);
+  addTree(15,0,13.5,3,3);
+  addTree(13,0,15,3,3);
 }
 
 function forest(numTrees = 5, xMax=20, zMax=20, xMin=-20, zMin=-20){
@@ -186,20 +198,19 @@ function forest(numTrees = 5, xMax=20, zMax=20, xMin=-20, zMin=-20){
 }
 
 function buttony(){
-  b1 = new Button(30.5,0.1,30.5);
+  b1 = new Button(15.35,0.1,15.35); // forest
   b1.addToWorld();
-  addCube(29.5,0,29.5,1.5,0.1,1.5,TEX_STONE,[.7,.1,.7,.8],false);
 
-  b2 = new Button(-28.65,0.1,28.35);
+  b2 = new Button(-15.65,0.1,15.35); // dance floor
   b2.addToWorld();
 
-  b3 = new Button(-15,0.1,-7.5);
+  b3 = new Button(-15,0.1,-7.5); // alley
   b3.addToWorld();
 
-  b4 = new Button(30.5,0.1,30.5);
+  b4 = new Button(30.5,0.1,30.5); // cows
   b4.addToWorld();
 
-  b5 = new Button(30.5,0.1,30.5);
+  b5 = new Button(-3.65,0.1,-20.65); // hiden beyond the wall.
   b5.addToWorld();
 }
 
@@ -223,10 +234,6 @@ function addHouseClosed(x,y,z){
   addCube(x-.5,y+6,z+1,11,1,4,TEX_WOOL,[.6,.6,.4,1],false);
 }
 
-function addFountain(){
-
-}
-
 function addDanceFloor(x=-16,z=4){
   var list = [];
   addCube(x,0,z,12,.1,12,TEX_STONE,WHITE,false);
@@ -241,6 +248,27 @@ function addDanceFloor(x=-16,z=4){
   }
   return list;
 
+}
+
+function addPasture(x,z){
+  var fenceC = [1,1,1,1];
+  //posts
+  addCube(x,0,z,.5,1.1,.5,TEX_TREE,fenceC);
+  addCube(x+6,0,z,.5,1.1,.5,TEX_TREE,fenceC);
+  addCube(x+4,0,z,.5,1.1,.5,TEX_TREE,fenceC);
+  addCube(x+2,0,z,.5,1.1,.5,TEX_TREE,fenceC);
+  addCube(x+8,0,z,.5,1.1,.5,TEX_TREE,fenceC);
+  addCube(x+10,0,z,.5,1.1,.5,TEX_TREE,fenceC);
+  
+  addCube(x,0,z - 2,.5,1.1,.5,TEX_TREE,fenceC);
+  addCube(x,0,z - 4,.5,1.1,.5,TEX_TREE,fenceC);
+  addCube(x,0,z - 6,.5,1.1,.5,TEX_TREE,fenceC);
+  addCube(x,0,z - 7.75,.5,1.1,.5,TEX_TREE,fenceC);
+
+  // rail
+  addCube(x + .5,.25,z+.125,11.5,.5,.25,TEX_TREE,fenceC);
+  addCube(x + .125,.25,z+.5-8.5,.25,.5,4,TEX_TREE,fenceC);
+  addCube(x + .125,.25,z+.5-2.4,.25,.5,2.3,TEX_TREE,fenceC);
 }
 
 function addCube(x, y, z, sx=1, sy=1, sz=1, texNum=TEX_DIRT, color = WHITE, collide = true, cube = new Cube()) {
@@ -295,9 +323,9 @@ function setShapes(){
   sky_cube.texNum = TEX_SKY;
   geomList.push(sky_cube);
 
-  addCube(-3,.5,1,1,1,1, TEX_COLOR, g_RGB, true); // 2
+  addCube(-3,.5,1,1,1,1, TEX_COLOR, [...g_RGB], true); // 2
 
-  addCube(-16,-1,-16, 32,1,32,TEX_GRASS, GRASS_COL, false); // 3
+  addCube(-16,-.1,-16, 32,.1,32,TEX_GRASS, GRASS_COL, false); // 3
   danceFloor = addDanceFloor(); // 4+
   wally();
   foresty();
@@ -307,9 +335,7 @@ function setShapes(){
   addHouseClosed(-15.75,0,-15);
   addHouseClosed(-15.75,0,-6);
 
-
-  addFountain();
+  addPasture(4,-8);
 
   addCube(-3,1.75,1,1,1,1, TEX_UV_DEBUG, WHITE, false);
-
 }
